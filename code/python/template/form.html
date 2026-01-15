@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Canary — Watermarking Emails</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 15px;
+      color: #222;
+      background: #fafafa;
+    }
+
+    h1, h2 {
+      margin-bottom: 10px;
+    }
+
+    .box {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    textarea, input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+      font-family: monospace;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-generate {
+      background: #2d89ef;
+      color: white;
+    }
+
+    .btn-identify {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .result {
+      background: #f6f6f6;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      margin-top: 10px;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+      font-family: monospace;
+    }
+
+    .success {
+      color: #1e7e34;
+      font-weight: bold;
+    }
+
+    .warning {
+      color: #b7791f;
+      font-weight: bold;
+    }
+
+    .error {
+      color: #c53030;
+      font-weight: bold;
+    }
+
+    footer {
+      margin-top: 30px;
+      font-size: 13px;
+      color: #666;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Canary — Générateur d’emails watermarkés</h1>
+  <p>
+    Outil permettant de générer des variantes d’emails afin de tracer une fuite et identifier le destinataire concerné à partir des logs.
+  </p>
+
+  <p class="error"> Interface web : prototype réalisé avec assistance IA pour tester l'outil</p>
+
+
+  <p> Exemple d'email : Bonjour, C’est important que nous puissions commencer rapidement cette tâche afin d’obtenir un bon résultat J’ai besoin de ton aide pour tester une idée que nous pourrons ensuite changer si nécessaire. Peux-tu me montrer comment utiliser les outils dès demain Cela devrait permettre de créer un meilleur processus. Merci d’avance pour ton retour. Bien à toi [Votre Nom]</p>
+  <div class="box">
+    <h2>📩 Générer des variantes</h2>
+    <form method="post" action="/generate">
+
+      <label for="email">Texte de l’email original</label>
+      <textarea id="email" name="email" required>{{ email_original if email_original else '' }}</textarea>
+
+      <label for="nb_variantes" style="margin-top:10px;">Nombre de variantes</label>
+      <input type="number" id="nb_variantes" name="nb_variantes" value="3" min="1" required />
+
+      <button class="btn-generate" type="submit">Générer</button>
+    </form>
+
+    {% if resultats %}
+      <div class="result">
+        <h3>✅ Variantes générées</h3>
+
+        {% if log %}
+          <p class="success">Les emails ont été sauvegardés dans les logs.</p>
+        {% else %}
+          <p class="warning">Le fichier n’a pas été archivé (version identique déjà existante).</p>
+        {% endif %}
+
+        <ul>
+          {% for item in resultats %}
+            <li>
+              <strong>{{ item.nom }}</strong>
+              <textarea readonly style="width:100%; min-height:140px; font-family:monospace;">{{ item.texte }}</textarea>
+            </li>
+            <hr>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="box">
+    <h2>🕵️ Identifier un email leak</h2>
+    <form method="post" action="/identify">
+
+      <label for="email_leak">Email suspect</label>
+      <textarea id="email_leak" name="email_leak">{{ email_leak if email_leak else '' }}</textarea>
+
+      <button class="btn-identify" type="submit">Identifier</button>
+    </form>
+
+    {% if nom %}
+      <div class="result">
+        {% if info %}
+          <p class="success">✅ Identification confirmée (hash complet)</p>
+        {% else %}
+          <p class="warning">⚠️ Identification probable (mots porteurs)</p>
+        {% endif %}
+
+        <p><strong>Employé :</strong> {{ nom }}</p>
+        <p><strong>ID binaire :</strong> {{ id_binaire }}</p>
+        <p><strong>Hash email :</strong></p>
+        <pre>{{ hash_email }}</pre>
+      </div>
+    {% endif %}
+
+    {% if error %}
+      <div class="result">
+        <p class="error">❌ Impossible d’identifier l’auteur de cet email.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <footer>
+    Canary • Watermarking, traçabilité des fuites d’emails
+  </footer>
+
+</body>
+</html>
