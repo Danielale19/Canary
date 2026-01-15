@@ -89,7 +89,7 @@ Puis ouvrir :
 
 ## 🧪 Utilisation
 
-###✅ Générer des variantes
+### ✅ Générer des variantes
 - Coller un email original
 - Choisir le nombre de variantes
 - Cliquer sur Générer
