@@ -29,9 +29,7 @@ En cas de fuite, l’outil peut ensuite **retrouver à qui la version fuité a �
 
 📌 **Capacité :** si l’email contient `k` mots porteurs, on peut créer jusqu’à :
 
-\[
-2^k \text{ variantes uniques}
-\]
+2^k >= nombre de variantes
 
 ---
 
